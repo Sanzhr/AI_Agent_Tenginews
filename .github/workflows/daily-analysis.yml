@@ -1,0 +1,41 @@
+name: Daily Tengrinews Political Analysis
+
+# Расписание: 05:00 UTC = 10:00 по Астане (Казахстан не переводит часы,
+# поэтому смещение UTC+5 постоянное круглый год)
+on:
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch: {}   # позволяет запустить вручную кнопкой на GitHub для проверки
+
+# Разрешение коммитить изменения (новый отчёт и last_run.json) обратно в репозиторий
+permissions:
+  contents: write
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run analyzer
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python tengrinews_analyzer.py
+
+      - name: Commit and push report (if any)
+        run: |
+          git config user.name "tengrinews-agent-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add reports/ last_run.json
+          git diff --cached --quiet && echo "Нет новых файлов для коммита" || \
+            (git commit -m "Автоотчёт: $(date -u +'%Y-%m-%d %H:%M UTC')" && git push)
