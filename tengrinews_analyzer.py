@@ -55,8 +55,8 @@ STATE_FILE = os.path.join(BASE_DIR, "last_run.json")
 # Как задать переменную окружения — см. инструкцию в конце файла.
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
-# Модель, которой поручаем анализ
-GEMINI_MODEL = "gemini-2.5-flash"
+# Модель, которой поручаем анализ (актуальная стабильная модель на 2026 год)
+GEMINI_MODEL = "gemini-3.5-flash"
 GEMINI_URL = (
     f"https://generativelanguage.googleapis.com/v1beta/models/"
     f"{GEMINI_MODEL}:generateContent"
