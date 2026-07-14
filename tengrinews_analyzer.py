@@ -56,7 +56,7 @@ STATE_FILE = os.path.join(BASE_DIR, "last_run.json")
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 # Модель, которой поручаем анализ (бесплатный тариф Gemini API)
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL = "gemini-2.0-flash"
 GEMINI_URL = (
     f"https://generativelanguage.googleapis.com/v1beta/models/"
     f"{GEMINI_MODEL}:generateContent"
@@ -266,7 +266,11 @@ def analyze_with_gemini(articles: list[dict]) -> str:
         json=payload,
         timeout=120,
     )
-    response.raise_for_status()
+    if response.status_code != 200:
+        # Показываем полный ответ Google, чтобы сразу было видно точную причину сбоя
+        raise RuntimeError(
+            f"Ошибка Gemini API ({response.status_code}): {response.text}"
+        )
     data = response.json()
 
     try:
